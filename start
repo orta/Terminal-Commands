@@ -3,14 +3,14 @@ require 'yaml'
 
 TASK_FILE = ".task"
 
-if File.exists TASK_FILE
+if File.exists? TASK_FILE
   p "Already in a task! To cancel current task run: \n rm .task"
-  task = YAML.load_file(.task)
+  task = YAML.load_file(TASK_FILE)
   p "Task is #{task["title"]}"
 end
 
 # did you give a valid number
-if ARVG[0]
+if ARGV[0]
   
   p "Getting info on task ##{ARGV[0]}"
   @ghi_output = `ghi show #{ARGV[0]}`
@@ -30,13 +30,14 @@ else
   @ghi_output = `ghi create`
 end
 
-@ghi_id = ghi_output.spilt(":")[0]
-@ghi_title = ghi_output.spilt("\n")[0]
+ghi_id = @ghi_output.split(":")[0]
+ghi_title = @ghi_output.split("\n")[0]
 
 # write the task into a yaml file
 
-id = ghi_id.[1..-1]
-task = { title: @ghi_title, id: @ghi_id }
+id = ghi_id[1..-1]
+task = { title: ghi_title, id: ghi_id }
+
 File.open(TASK_FILE, 'w+') {|f| f.write( YAML::dump(task)) }
 
 # remove the hash

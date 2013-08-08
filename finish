@@ -26,6 +26,7 @@ if File.exists "~/.gitconfig"
 end
 
 task = YAML.load_file(.task)
+
 p "Finishing up #{task["title"]}"
 
 # Make a dummy commit to close the issue once the PR is merged
