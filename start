@@ -1,0 +1,47 @@
+#!/usr/bin/ruby
+require 'yaml'
+
+TASK_FILE = ".task"
+
+if File.exists TASK_FILE
+  p "Already in a task! To cancel current task run: \n rm .task"
+  task = YAML.load_file(.task)
+  p "Task is #{task["title"]}"
+end
+
+# did you give a valid number
+if ARVG[0]
+  
+  p "Getting info on task ##{ARGV[0]}"
+  @ghi_output = `ghi show #{ARGV[0]}`
+  
+  # => "↑222: @orta Inquiry setup\n@speednoisemovement opened this pull request 9 days ago. [closed] \n\n    Should be enough to get you started\n\n\n"
+  
+  if @ghi_output == ""
+    p "You must just give the issue number as an argument"
+    return
+  end
+else 
+  p "Starting new task"
+
+  # [2] pry(main)> test
+  # => "#242: Show separate error mesage for user enacted network calls\n@orta opened this issue 0 seconds ago. [open] \n\n    Full screen instead of at the bottom\n\n\nOpened.\n" 
+
+  @ghi_output = `ghi create`
+end
+
+@ghi_id = ghi_output.spilt(":")[0]
+@ghi_title = ghi_output.spilt("\n")[0]
+
+# write the task into a yaml file
+
+id = ghi_id.[1..-1]
+task = { title: @ghi_title, id: @ghi_id }
+File.open(TASK_FILE, 'w+') {|f| f.write( YAML::dump(task)) }
+
+# remove the hash
+
+# switch to a new branch
+`git checkout -b task_#{id}`
+
+p "Starting task #{ghi_title}"
