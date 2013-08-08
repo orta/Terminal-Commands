@@ -3,11 +3,9 @@ require 'yaml'
 
 TASK_FILE = ".task"
 COMPANY = "artsy"
-
-# also supports using the .gitconfig
 ME = "orta"
 
-unless File.exists TASK_FILE
+unless File.exists? TASK_FILE
   p "You have not started a task here!"
   return
 end
@@ -17,28 +15,21 @@ if `git status -s` == ""
   return
 end
 
-# support using the .gitconfig to find a username
-if File.exists "~/.gitconfig"
-  config = File.read("~/.gitconfig")
-  if config.include? "user = "
-    ME = config.split("user = ")[1].split("\n")[0]
-  end
-end
+task = YAML.load_file(TASK_FILE)
 
-task = YAML.load_file(.task)
-
-p "Finishing up #{task["title"]}"
+p "Finishing up #{task[:title]}"
 
 # Make a dummy commit to close the issue once the PR is merged
-`git commit --allow-empty -m "Closes #{task["id"]} - #{task["title"]}"`
+`git commit --allow-empty -m "Closes #{task[:id]} - #{task[:title]}" `
 
-branch = `echo (git-branch)`
+branch = `git rev-parse --abbrev-ref HEAD`.strip
 p "Pushing to #{branch} on origin"
 
-`git push origin (git-branch)`
+`git push origin #{branch}`
 
-current_folder = `(basename (pwd))`
+current_folder = File.basename(Dir.getwd)
 site = "https://github.com/#{ME}/#{current_folder}/pull/new/#{COMPANY}:master...#{branch}";
 p "Opening a PR to #{site}"
 
+`rm #{TASK_FILE}`
 `open #{site}`
